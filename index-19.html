@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090b14">
+  <title>Sesuatu Buat Kamu</title>
+  <style>
+    :root { --bg:#090b14; --card:#121625; --pink:#ff5fa2; --text:#f6f7fb; --muted:#a9afc4; }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100svh; display:grid; place-items:center; padding:18px;
+      background:radial-gradient(ellipse at 20% 10%, #282044 0, transparent 42%),
+                 radial-gradient(ellipse at 90% 90%, #35172e 0, transparent 40%), var(--bg);
+      color:var(--text); font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+    }
+    .app { width:min(100%,430px); }
+    .top { display:flex; justify-content:space-between; align-items:center; margin:0 2px 12px; color:var(--muted); font-size:12px; letter-spacing:.12em; text-transform:uppercase; }
+    .progress { height:4px; background:#282c3d; border-radius:99px; overflow:hidden; margin-bottom:14px; }
+    .bar { height:100%; width:20%; background:linear-gradient(90deg,var(--pink),#b6a1ff); transition:width .35s ease; }
+    .slide {
+      min-height:390px; padding:30px 24px; border:1px solid #ffffff18; border-radius:26px;
+      background:linear-gradient(145deg,#171b2bdf,#101320f2); box-shadow:0 24px 80px #0007;
+      display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+      animation:enter .35s ease;
+    }
+    .symbol { width:62px; height:62px; display:grid; place-items:center; border-radius:20px; margin-bottom:24px;
+      background:#ff5fa21b; border:1px solid #ff5fa24d; color:var(--pink); font-size:26px; }
+    h1 { font-size:clamp(25px,7vw,34px); line-height:1.2; margin:0 0 14px; letter-spacing:-.04em; }
+    p { color:var(--muted); line-height:1.65; margin:0; font-size:15px; }
+    .code { margin-top:24px; padding:9px 14px; border:1px dashed #ff5fa266; border-radius:10px; color:#ff9bc4; font:12px ui-monospace,SFMono-Regular,Consolas,monospace; }
+    .controls { display:flex; gap:10px; margin-top:14px; }
+    button { cursor:pointer; border:1px solid #ffffff20; border-radius:14px; padding:14px 18px; font-weight:700; font-size:14px; color:var(--text); background:#ffffff0c; }
+    button:disabled { opacity:.3; cursor:default; }
+    .next { flex:1; border:0; color:#160b16; background:linear-gradient(100deg,#ff78b2,#c4a5ff); }
+    .hint { text-align:center; color:#858ba1; font-size:11px; margin-top:14px; }
+    .final-code { color:#ff8fbd; font:700 24px ui-monospace,monospace; margin-top:18px; letter-spacing:.08em; }
+    @keyframes enter { from {opacity:0;transform:translateY(8px)} to {opacity:1;transform:translateY(0)} }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <div class="top"><span>✦ pesan kecil</span><span id="counter">01 / 05</span></div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <section class="slide" id="slide" aria-live="polite">
+      <div class="symbol" id="symbol">✦</div>
+      <h1 id="heading">Lu tau nggak?</h1>
+      <p id="message">Lu tau nggak kenapa gw bikin web mini ini?</p>
+      <div class="code" id="tag">INITIALIZING_MESSAGE.exe</div>
+    </section>
+    <div class="controls">
+      <button id="prev" disabled>← Kembali</button>
+      <button class="next" id="next">Lanjut →</button>
+    </div>
+    <div class="hint">Geser ceritanya pelan-pelan · 5 slide</div>
+  </main>
+  <script>
+    const slides = [
+      {icon:"✦", title:"Lu tau nggak?", message:"Lu tau nggak kenapa gw bikin web mini ini?", tag:"QUESTION_01"},
+      {icon:"⌁", title:"Karena…", message:"Ada sesuatu yang pengin gw sampaikan ke lu.", tag:"MESSAGE_PENDING"},
+      {icon:"!", title:"Kali ini serius.", message:"Kali ini gw nggak bercanda.", tag:"NO_JOKES.exe"},
+      {icon:"♡", title:"Jadi…", message:"Lu mau nggak jadi pacar gw?", tag:"THE_QUESTION"},
+      {icon:"⌘", title:"Apa pun jawaban lu", message:"Kalau nggak juga nggak apa-apa. Makasih udah mau jawab. Jawab pakai kode aja biar simpel, ya.", tag:"RESPONSE_PROTOCOL"}
+    ];
+    let current = 0;
+    const $ = id => document.getElementById(id);
+    function render() {
+      const s = slides[current];
+      $("symbol").textContent = s.icon;
+      $("heading").textContent = s.title;
+      $("message").textContent = s.message;
+      $("tag").textContent = s.tag;
+      $("counter").textContent = String(current + 1).padStart(2,"0") + " / 05";
+      $("bar").style.width = ((current + 1) / slides.length * 100) + "%";
+      $("prev").disabled = current === 0;
+      $("next").textContent = current === slides.length - 1 ? "Selesai ✓" : "Lanjut →";
+      $("slide").style.animation = "none";
+      void $("slide").offsetWidth;
+      $("slide").style.animation = "";
+      if (current === slides.length - 1) {
+        $("tag").textContent = "IYA = @    |    NGGAK = 999";
+      }
+    }
+    $("next").addEventListener("click", () => {
+      if (current < slides.length - 1) { current++; render(); }
+      else {
+        $("heading").textContent = "Makasih ya ♡";
+        $("message").textContent = "Kirim kode jawaban lu ke DM TikTok gw.";
+        $("symbol").textContent = "✓";
+        $("tag").textContent = "IYA = @    |    NGGAK = 999";
+      }
+    });
+    $("prev").addEventListener("click", () => { if (current > 0) { current--; render(); } });
+    let startX = null;
+    $("slide").addEventListener("touchstart", e => { startX = e.changedTouches[0].clientX; }, {passive:true});
+    $("slide").addEventListener("touchend", e => {
+      if (startX === null) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 55) {
+        if (dx < 0 && current < slides.length - 1) current++;
+        else if (dx > 0 && current > 0) current--;
+        render();
+      }
+      startX = null;
+    }, {passive:true});
+    render();
+  </script>
+</body>
+</html>
